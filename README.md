@@ -1,5 +1,7 @@
 Desktop multi-platform updater. Admins uploads their application to a public repository and end-users download missing or changed files only from the same repository
 
+![img](assets/diagram.png)
+
 ## How to use
 
 ### Parameters
