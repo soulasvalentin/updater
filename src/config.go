@@ -30,22 +30,36 @@ func readConfig(c *config) error {
 		return errors.New("Error while parsing config json file" + errUnmarshal.Error())
 	}
 
+	setDefaultValues(c)
+
 	return nil
+}
+
+func setDefaultValues(c *config) {
+	if len(c.LocalDirectory) == 0 {
+		c.LocalDirectory = DefaultLocalDirectory
+	}
 }
 
 func printConfig(c config) {
 	fmt.Println(" - remoteUrl: " + c.RemoteUrl)
+	fmt.Println(" - localDirectory: " + c.LocalDirectory)
 }
 
-// Verifies config fields integrity, exits on error
-func verifyConfigIntegrity(c config) (bool, string) {
-	if len(c.RemoteUrl) == 0 {
-		return false, "[error] remoteUrl cannot be empty"
+// Verifies config fields integrity, returns error
+func verifyConfigIntegrity(c config, executionMode string) error {
+	if len(c.LocalDirectory) == 0 {
+		return errors.New("[error] LocalDirectory cannot be empty")
 	}
-	if _, err := url.ParseRequestURI(c.RemoteUrl); err != nil {
-		return false, "[error] remoteUrl is not a valid URL"
+	if executionMode == "sync" {
+		if len(c.RemoteUrl) == 0 {
+			return errors.New("[error] remoteUrl cannot be empty")
+		}
+		if _, err := url.ParseRequestURI(c.RemoteUrl); err != nil {
+			return errors.New("[error] remoteUrl is not a valid URL")
+		}
 	}
-	return true, ""
+	return nil
 }
 
 // Gets execution arguments and attempts to override config settings.
@@ -58,6 +72,8 @@ func attempConfigOverrideFromArgs(c *config, args []string) {
 			switch key {
 			case "remoteUrl":
 				c.RemoteUrl = val
+			case "localDirectory":
+				c.LocalDirectory = val
 			}
 		}
 	}

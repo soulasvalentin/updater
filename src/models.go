@@ -1,7 +1,8 @@
 package main
 
 type config struct {
-	RemoteUrl string `json:"remoteUrl"`
+	RemoteUrl      string `json:"remoteUrl"`
+	LocalDirectory string `json:"localDirectory"`
 }
 
 type manifestFile struct {

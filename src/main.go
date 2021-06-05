@@ -11,6 +11,13 @@ func main() {
 
 	args := os.Args[1:]
 
+	// command
+	cmd := DefaultCommand
+	if len(args) > 0 {
+		cmd = args[0]
+	}
+	fmt.Println("Command:", cmd)
+
 	// config
 	c := config{}
 	if err := readConfig(&c); err != nil {
@@ -18,21 +25,20 @@ func main() {
 	}
 	attempConfigOverrideFromArgs(&c, args)
 	printConfig(c)
-	if cOk, cErr := verifyConfigIntegrity(c); !cOk {
-		log.Fatal(cErr)
+	if err := verifyConfigIntegrity(c, cmd); err != nil {
+		log.Fatal(err)
 	}
 
-	// command
-	cmd := "sync"
-	if len(args) > 0 && args[0] == "build" {
-		cmd = "build"
-	}
-
+	// exec
 	switch cmd {
 	case "sync":
 		sync(c)
 	case "build":
 		build(c)
+	case "help", "-h", "--help":
+		printHelp()
+	default:
+		log.Fatal("Unknown command " + cmd)
 	}
 
 	fmt.Println("Updater finished")
